@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet">
+    <title>Grafos</title>
+</head>
+
+<body>
+    <header class="navbar">
+        <h1 class="cabecera-nombre">Análisis de Algoritmos</h1>
+        <ul class="nav-links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="algoritmos.html">Algoritmos</a></li>
+            <li><a href="grafo.html" class="activo">Grafos</a></li>
+        </ul>
+    </header>
+
+
+    <h2>Grafos</h2>
+
+    <div class="controls">
+        <label>
+            <input type="radio" name="modo" checked onchange="cambiarModo('nodo')">
+            Nodo
+        </label>
+
+        <br>
+
+        <label>
+            <input type="radio" name="modo" onchange="cambiarModo('arista')">
+            Arista
+        </label>
+
+        <label>
+            <input type="checkbox" id="dirigida">
+            Dirigida
+        </label>
+    </div>
+
+
+    <br>
+
+    <canvas id="canvas" width="900" height="500"></canvas>
+
+    <br>
+
+    <button onclick="limpiarGrafo()">Limpiar grafo</button>
+
+    <br>
+
+    </section>
+    <footer>
+        <p> Hecho por Natalia Aytia Morales </p>
+    </footer>
+
+    <!-- MODAL -->
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Título</h3>
+
+            <input type="text" id="modal-input" placeholder="Escribe aquí...">
+
+            <p id="modal-error" class="modal-error"></p>
+
+            <div class="modal-buttons">
+                <button class="modal-btn aceptar" onclick="confirmarModal()">Aceptar</button>
+                <button class="modal-btn cancelar" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
