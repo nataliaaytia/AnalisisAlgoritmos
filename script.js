@@ -435,6 +435,8 @@ function generarMatriz() {
 
     let sumColumnas = Array(n).fill(0);
     let countColumnas = Array(n).fill(0);
+    let sumFilas = [];
+    let countFilas = [];
 
     const header = document.createElement("tr");
     header.appendChild(document.createElement("th"));
@@ -478,6 +480,9 @@ function generarMatriz() {
             sumColumnas[j] += valor;
         });
 
+        sumFilas.push(sumaFila);
+        countFilas.push(countFila);
+
         const tdSum = document.createElement("td");
         tdSum.textContent = sumaFila;
         tdSum.classList.add("suma-cell");
@@ -503,7 +508,6 @@ function generarMatriz() {
 
     trSumCol.appendChild(document.createElement("td"));
     trSumCol.appendChild(document.createElement("td"));
-
     tabla.appendChild(trSumCol);
 
     const trCountCol = document.createElement("tr");
@@ -518,10 +522,25 @@ function generarMatriz() {
 
     trCountCol.appendChild(document.createElement("td"));
     trCountCol.appendChild(document.createElement("td"));
-
     tabla.appendChild(trCountCol);
 
     container.appendChild(tabla);
+
+    const maxSumaFila = Math.max(...sumFilas);
+    const maxSumaCol = Math.max(...sumColumnas);
+    const maxCountFila = Math.max(...countFilas);
+    const maxCountCol = Math.max(...countColumnas);
+
+    const info = document.createElement("div");
+    info.style.marginTop = "15px";
+    info.innerHTML = `
+        <p>Máximo Suma Fila: ${maxSumaFila}</p>
+        <p>Máximo Suma Columna: ${maxSumaCol}</p>
+        <p>Máximo Count Fila: ${maxCountFila}</p>
+        <p>Máximo Count Columna: ${maxCountCol}</p>
+    `;
+
+    container.appendChild(info);
 }
 
 function abrirHelp() {
