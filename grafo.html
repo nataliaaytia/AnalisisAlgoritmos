@@ -22,24 +22,24 @@
     <h2>Grafos</h2>
 
     <div class="controls">
-        <label>
-            <input type="radio" name="modo" checked onchange="cambiarModo('nodo')">
-            Nodo
-        </label>
 
-        <br>
+        <button class="modo-btn activo" onclick="cambiarModo('nodo', this)">
+            Crear Nodo
+        </button>
 
-        <label>
-            <input type="radio" name="modo" onchange="cambiarModo('arista')">
-            Arista
-        </label>
+        <button class="modo-btn" onclick="cambiarModo('arista', this)">
+            Unir Nodos
+        </button>
 
-        <label>
-            <input type="checkbox" id="dirigida">
-            Dirigida
-        </label>
+        <button class="modo-btn" onclick="cambiarModo('borrar', this)">
+            Borrar
+        </button>
+
+        <button class="modo-btn" onclick="cambiarModo('editar', this)">
+            Editar
+        </button>
+
     </div>
-
 
     <br>
 
@@ -47,9 +47,20 @@
 
     <br>
 
-    <button onclick="limpiarGrafo()">Limpiar grafo</button>
+    <div class="botonesuwu">
+        <button onclick="limpiarGrafo()">Limpiar lienzo</button>
+
+        <button onclick="generarMatriz()">Generar matriz de adyacencia</button>
+    </div>
 
     <br>
+
+    <div class="controls2">
+        <button class="modo-btn" onclick="abrirHelp()">Ayuda</button>
+
+    </div>
+
+    <div id="matriz-container" style="margin-top:30px;"></div>
 
     </section>
     <footer>
@@ -64,12 +75,57 @@
 
             <input type="text" id="modal-input" placeholder="Escribe aquí...">
 
+            <label id="modal-dirigida" style="display:none; margin-bottom:10px;">
+                <input type="checkbox" id="modal-dirigida-check">
+                Arista dirigida
+            </label>
+
             <p id="modal-error" class="modal-error"></p>
 
             <div class="modal-buttons">
                 <button class="modal-btn aceptar" onclick="confirmarModal()">Aceptar</button>
                 <button class="modal-btn cancelar" onclick="cerrarModal()">Cancelar</button>
             </div>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal">
+        <div class="modal-content help-content">
+            <span class="close" onclick="cerrarHelp()">&times;</span>
+            <h2>¿Cómo dibujo mi grafo?</h2>
+            <br>
+            <div class="help-section">
+                <h3>Crear Nodo</h3>
+                <p>Selecciona "Crear Nodo" y haz clic en el lienzo para agregar un nuevo nodo.</p>
+            </div>
+
+            <br>
+            <div class="help-section">
+                <h3> Unir Nodos</h3>
+                <p>Selecciona "Unir". Haz clic en el nodo origen y luego en el nodo destino. Ingresa el peso y
+                    selecciona si es dirigida.</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3> Editar Nodo </h3>
+                <p>Selecciona "Editar" y haz clic sobre un nodo o arista para modificar su información.</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3>Borrar Nodo</h3>
+                <p>Selecciona "Borrar" y haz clic sobre el elemento que deseas eliminar.</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3> Limpiar Lienzo</h3>
+                <p>Elimina todos los nodos y aristas del grafo.</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3> Matriz de Adyacencia</h3>
+                <p>Genera la matriz con las sumas por fila, columna y los contadores de conexiones.</p>
+            </div>
+
         </div>
     </div>
 

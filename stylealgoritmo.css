@@ -186,3 +186,72 @@ summary::-webkit-details-marker {
         filter: blur(0);
     }
 }
+
+.wrapper {
+    perspective: 3000px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.carta {
+    width: 360px;
+    height: 530px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2),
+        -5px -5px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+}
+
+.carta:hover {
+    transform: rotateY(180deg);
+}
+
+.carta-frente,
+.carta-atras {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+}
+
+.carta-frente {
+    background-color: #fffbf9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.carta-titulo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #d9825b;
+}
+
+.carta-atras {
+    background-color: #fffbf9;
+    color: rgb(88, 88, 88);
+    transform: rotateY(180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.carta-contenido {
+    text-align: center;
+    max-width: 300px;
+}
+
+.carta-contenido p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 15px;
+}

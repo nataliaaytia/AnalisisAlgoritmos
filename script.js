@@ -24,9 +24,21 @@ function generarColor() {
     return colores[Math.floor(Math.random() * colores.length)];
 }
 
-function cambiarModo(valor) {
+function cambiarModo(valor, boton) {
+
     modo = valor;
     nodoSeleccionado = null;
+    nodoActivo = null;
+
+    // Quitar activo de todos
+    document.querySelectorAll(".modo-btn").forEach(btn => {
+        btn.classList.remove("activo");
+    });
+
+    // Activar el clickeado
+    boton.classList.add("activo");
+
+    dibujar();
 }
 
 canvas.addEventListener("click", function (e) {
@@ -91,7 +103,7 @@ canvas.addEventListener("click", function (e) {
                 desde: nodoSeleccionado,
                 hasta: nodo,
                 peso: parseFloat(peso),
-                dirigida: document.getElementById("dirigida").checked,
+                dirigida: document.getElementById("modal-dirigida-check").checked,
                 color: generarColor()
             });
 
@@ -100,7 +112,41 @@ canvas.addEventListener("click", function (e) {
 
             dibujar();
 
-        }, "number");
+        }, "number", true, true);
+    }
+
+    if (modo === "borrar") {
+
+        if (nodo) {
+
+            // eliminar aristas conectadas
+            aristas = aristas.filter(a =>
+                a.desde !== nodo && a.hasta !== nodo
+            );
+
+            // eliminar nodo
+            nodos = nodos.filter(n => n !== nodo);
+
+            dibujar();
+        }
+
+        return;
+    }
+
+    if (modo === "editar") {
+
+        if (!nodo) return;
+
+        abrirModal("Nuevo nombre del nodo", function (nombre) {
+
+            if (!nombre) return false;
+
+            nodo.nombre = nombre;
+            dibujar();
+
+        });
+
+        return;
     }
 });
 
@@ -291,18 +337,23 @@ function limpiarGrafo() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 let modalCallback = null;
-function abrirModal(titulo, callback = null, tipo = "text", mostrarInput = true) {
+function abrirModal(titulo, callback = null, tipo = "text", mostrarInput = true, mostrarDirigida = false) {
 
     document.getElementById("modal-title").textContent = titulo;
 
     const input = document.getElementById("modal-input");
     const error = document.getElementById("modal-error");
+    const dirigidaLabel = document.getElementById("modal-dirigida");
+    const dirigidaCheck = document.getElementById("modal-dirigida-check");
 
     input.value = "";
     input.type = tipo;
     error.textContent = "";
 
     input.style.display = mostrarInput ? "block" : "none";
+
+    dirigidaLabel.style.display = mostrarDirigida ? "block" : "none";
+    dirigidaCheck.checked = false;
 
     document.getElementById("modal").classList.add("active");
 
@@ -355,4 +406,132 @@ function animarNodo() {
     requestAnimationFrame(frame);
 }
 
+function generarMatriz() {
 
+    if (nodos.length === 0) return;
+
+    const container = document.getElementById("matriz-container");
+    container.innerHTML = "";
+
+    const n = nodos.length;
+
+    let matriz = Array.from({ length: n }, () =>
+        Array(n).fill(0)
+    );
+
+    aristas.forEach(arista => {
+
+        const i = nodos.indexOf(arista.desde);
+        const j = nodos.indexOf(arista.hasta);
+
+        matriz[i][j] += arista.peso;
+
+        if (!arista.dirigida) {
+            matriz[j][i] += arista.peso;
+        }
+    });
+
+    const tabla = document.createElement("table");
+
+    let sumColumnas = Array(n).fill(0);
+    let countColumnas = Array(n).fill(0);
+
+    // ===== ENCABEZADO =====
+    const header = document.createElement("tr");
+    header.appendChild(document.createElement("th"));
+
+    nodos.forEach(nodo => {
+        const th = document.createElement("th");
+        th.textContent = nodo.nombre;
+        header.appendChild(th);
+    });
+
+    header.appendChild(Object.assign(document.createElement("th"), { textContent: "Σ Fila" }));
+    header.appendChild(Object.assign(document.createElement("th"), { textContent: "Count" }));
+
+    tabla.appendChild(header);
+
+    // ===== FILAS =====
+    matriz.forEach((fila, i) => {
+
+        const tr = document.createElement("tr");
+
+        const th = document.createElement("th");
+        th.textContent = nodos[i].nombre;
+        tr.appendChild(th);
+
+        let sumaFila = 0;
+        let countFila = 0;
+
+        fila.forEach((valor, j) => {
+
+            const td = document.createElement("td");
+            td.textContent = valor === 0 ? "" : valor;
+            td.classList.add("matriz-cell");
+            tr.appendChild(td);
+
+            sumaFila += valor;
+
+            if (valor !== 0) {
+                countFila++;
+                countColumnas[j]++;
+            }
+
+            sumColumnas[j] += valor;
+        });
+
+        const tdSum = document.createElement("td");
+        tdSum.textContent = sumaFila;
+        tdSum.classList.add("suma-cell");
+        tr.appendChild(tdSum);
+
+        const tdCount = document.createElement("td");
+        tdCount.textContent = countFila;
+        tdCount.classList.add("count-cell");
+        tr.appendChild(tdCount);
+
+        tabla.appendChild(tr);
+    });
+
+    // ===== Σ COLUMNAS =====
+    const trSumCol = document.createElement("tr");
+    trSumCol.appendChild(Object.assign(document.createElement("th"), { textContent: "Σ Col" }));
+
+    sumColumnas.forEach(valor => {
+        const td = document.createElement("td");
+        td.textContent = valor;
+        td.classList.add("suma-cell");
+        trSumCol.appendChild(td);
+    });
+
+    trSumCol.appendChild(document.createElement("td"));
+    trSumCol.appendChild(document.createElement("td"));
+
+    tabla.appendChild(trSumCol);
+
+    // ===== COUNT COLUMNAS =====
+    const trCountCol = document.createElement("tr");
+    trCountCol.appendChild(Object.assign(document.createElement("th"), { textContent: "Count Col" }));
+
+    countColumnas.forEach(valor => {
+        const td = document.createElement("td");
+        td.textContent = valor;
+        td.classList.add("count-cell");
+        trCountCol.appendChild(td);
+    });
+
+    trCountCol.appendChild(document.createElement("td"));
+    trCountCol.appendChild(document.createElement("td"));
+
+    tabla.appendChild(trCountCol);
+
+    container.appendChild(tabla);
+}
+
+function abrirHelp() {
+    document.getElementById("help-modal").classList.add("active");
+}
+
+function cerrarHelp() {
+    document.getElementById("help-modal").classList.remove("active");
+}
