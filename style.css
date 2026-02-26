@@ -280,19 +280,16 @@ footer {
     border: 1px solid #e3e6f0;
 }
 
-/* MATRIZ NORMAL */
 .matriz-cell {
     background-color: #ffffff;
 }
 
-/* SUMAS (Σ) */
 .suma-cell {
     background-color: #e1e4a0;
     /* azul clarito */
     font-weight: bold;
 }
 
-/* COUNT */
 .count-cell {
     background-color: #deecda;
     font-weight: bold;

@@ -436,7 +436,6 @@ function generarMatriz() {
     let sumColumnas = Array(n).fill(0);
     let countColumnas = Array(n).fill(0);
 
-    // ===== ENCABEZADO =====
     const header = document.createElement("tr");
     header.appendChild(document.createElement("th"));
 
@@ -446,12 +445,11 @@ function generarMatriz() {
         header.appendChild(th);
     });
 
-    header.appendChild(Object.assign(document.createElement("th"), { textContent: "Σ Fila" }));
+    header.appendChild(Object.assign(document.createElement("th"), { textContent: "Suma Fila" }));
     header.appendChild(Object.assign(document.createElement("th"), { textContent: "Count" }));
 
     tabla.appendChild(header);
 
-    // ===== FILAS =====
     matriz.forEach((fila, i) => {
 
         const tr = document.createElement("tr");
@@ -493,9 +491,8 @@ function generarMatriz() {
         tabla.appendChild(tr);
     });
 
-    // ===== Σ COLUMNAS =====
     const trSumCol = document.createElement("tr");
-    trSumCol.appendChild(Object.assign(document.createElement("th"), { textContent: "Σ Col" }));
+    trSumCol.appendChild(Object.assign(document.createElement("th"), { textContent: "Suma Col" }));
 
     sumColumnas.forEach(valor => {
         const td = document.createElement("td");
@@ -509,7 +506,6 @@ function generarMatriz() {
 
     tabla.appendChild(trSumCol);
 
-    // ===== COUNT COLUMNAS =====
     const trCountCol = document.createElement("tr");
     trCountCol.appendChild(Object.assign(document.createElement("th"), { textContent: "Count Col" }));
 
