@@ -48,6 +48,16 @@
 
     <br>
 
+    <div class="importarexportar">
+        <button onclick="exportarJSON()">Exportar grafo</button>
+        <input type="file" id="importarJSON" accept=".json">
+
+        <button onclick="document.getElementById('importarJSON').click()">
+            Importar grafo
+        </button>
+
+    </div>
+
     <div class="botonesuwu">
         <button onclick="limpiarGrafo()">Limpiar lienzo</button>
 
@@ -104,16 +114,17 @@
             <div class="help-section">
                 <h3> Unir Nodos</h3>
                 <p>Selecciona "Unir". Haz clic en el nodo origen y luego en el nodo destino. Ingresa el peso y
-                    selecciona si es dirigida.</p>
+                    selecciona si es dirigida en el checkbox.</p>
             </div>
             <br>
             <div class="help-section">
-                <h3> Editar Nodo </h3>
-                <p>Selecciona "Editar" y haz clic sobre un nodo o arista para modificar su información.</p>
+                <h3> Editar</h3>
+                <p>Selecciona "Editar" y haz clic sobre un nodo o arista para modificar su información (su nombre o su
+                    peso).</p>
             </div>
             <br>
             <div class="help-section">
-                <h3>Borrar Nodo</h3>
+                <h3>Borrar</h3>
                 <p>Selecciona "Borrar" y haz clic sobre el elemento que deseas eliminar.</p>
             </div>
             <br>
@@ -125,6 +136,16 @@
             <div class="help-section">
                 <h3> Matriz de Adyacencia</h3>
                 <p>Genera la matriz con las sumas por fila, columna y los contadores de conexiones.</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3> Exportar</h3>
+                <p>Exporta tu grafo con el nombre que quieras en formato json</p>
+            </div>
+            <br>
+            <div class="help-section">
+                <h3>Importar</h3>
+                <p>Carga tu archivo json con tu grafo para visualizarlo.</p>
             </div>
 
         </div>

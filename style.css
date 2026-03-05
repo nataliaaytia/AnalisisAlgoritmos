@@ -335,9 +335,25 @@ footer {
 
     .modal-content {
         width: 90%;
+        height: 90%;
     }
 
     #canvas {
         width: 95%;
     }
+}
+
+.modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+@media (max-width: 600px) {
+    .modal {
+        width: 95%;
+    }
+}
+
+#importarJSON {
+    display: none;
 }

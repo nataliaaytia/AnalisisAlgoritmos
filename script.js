@@ -48,6 +48,7 @@ canvas.addEventListener("click", function (e) {
     const y = e.clientY - rect.top;
 
     const nodo = obtenerNodo(x, y);
+    const arista = obtenerArista(x, y);
 
     if (modo === "nodo") {
 
@@ -119,13 +120,19 @@ canvas.addEventListener("click", function (e) {
 
         if (nodo) {
 
-            // eliminar aristas conectadas
             aristas = aristas.filter(a =>
                 a.desde !== nodo && a.hasta !== nodo
             );
 
-            // eliminar nodo
             nodos = nodos.filter(n => n !== nodo);
+
+            dibujar();
+            return;
+        }
+
+        if (arista) {
+
+            aristas = aristas.filter(a => a !== arista);
 
             dibujar();
         }
@@ -135,18 +142,38 @@ canvas.addEventListener("click", function (e) {
 
     if (modo === "editar") {
 
-        if (!nodo) return;
+        if (nodo) {
 
-        abrirModal("Nuevo nombre del nodo", function (nombre) {
+            abrirModal("Nuevo nombre del nodo", function (nombre) {
 
-            if (!nombre) return false;
+                if (!nombre) return false;
 
-            nodo.nombre = nombre;
-            dibujar();
+                nodo.nombre = nombre;
+                dibujar();
 
-        });
+            });
 
-        return;
+            return;
+        }
+
+        if (arista) {
+
+            abrirModal("Nuevo peso de la arista", function (peso) {
+
+                if (isNaN(peso) || peso <= 0) {
+                    document.getElementById("modal-error").textContent =
+                        "Ingrese un número válido.";
+                    return false;
+                }
+
+                arista.peso = parseFloat(peso);
+
+                dibujar();
+
+            }, "number");
+
+            return;
+        }
     }
 });
 
@@ -168,6 +195,52 @@ function obtenerNodo(x, y) {
     return nodos.find(n =>
         Math.sqrt((n.x - x) ** 2 + (n.y - y) ** 2) < radio
     );
+}
+function obtenerArista(x, y) {
+
+    for (let arista of aristas) {
+
+        const x1 = arista.desde.x;
+        const y1 = arista.desde.y;
+        const x2 = arista.hasta.x;
+        const y2 = arista.hasta.y;
+
+        const A = x - x1;
+        const B = y - y1;
+        const C = x2 - x1;
+        const D = y2 - y1;
+
+        const dot = A * C + B * D;
+        const len = C * C + D * D;
+
+        let param = -1;
+
+        if (len !== 0) param = dot / len;
+
+        let xx, yy;
+
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        }
+        else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        }
+        else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        const dx = x - xx;
+        const dy = y - yy;
+
+        const distancia = Math.sqrt(dx * dx + dy * dy);
+
+        if (distancia < 10) return arista;
+    }
+
+    return null;
 }
 
 function dibujar() {
@@ -244,13 +317,13 @@ function dibujarArista(arista) {
         const loopY = desde.y - 50;
 
         ctx.beginPath();
-        ctx.strokeStyle = arista.color;
+        ctx.strokeStyle = arista.color || "#333";
         ctx.lineWidth = 2;
         ctx.arc(loopX, loopY, loopRadius, 0, Math.PI * 2);
         ctx.stroke();
 
         // Peso
-        ctx.fillStyle = arista.color;
+        ctx.fillStyle = arista.color || "#333";
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(arista.peso, loopX, loopY - loopRadius - 10);
@@ -331,9 +404,13 @@ function dibujarFlecha(x, y, angle, color) {
     ctx.fill();
 }
 function limpiarGrafo() {
+
     nodos = [];
     aristas = [];
     nodoSeleccionado = null;
+
+    document.getElementById("matriz-container").innerHTML = "";
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 let modalCallback = null;
@@ -550,3 +627,62 @@ function abrirHelp() {
 function cerrarHelp() {
     document.getElementById("help-modal").classList.remove("active");
 }
+
+function exportarJSON() {
+
+    abrirModal("Nombre del archivo", function (nombre) {
+
+        const grafo = {
+            nodos: nodos,
+            aristas: aristas.map(a => ({
+                desde: nodos.indexOf(a.desde),
+                hasta: nodos.indexOf(a.hasta),
+                peso: a.peso,
+                dirigida: a.dirigida,
+                color: a.color
+            }))
+        };
+
+        const dataStr = JSON.stringify(grafo, null, 2);
+
+        const blob = new Blob([dataStr], { type: "application/json" });
+
+        const a = document.createElement("a");
+
+        a.href = URL.createObjectURL(blob);
+        a.download = nombre + ".json";
+
+        a.click();
+
+    });
+}
+
+document.getElementById("importarJSON").addEventListener("change", function (e) {
+
+    const archivo = e.target.files[0];
+
+    if (!archivo) return;
+
+    const lector = new FileReader();
+
+    lector.onload = function (event) {
+
+        const data = JSON.parse(event.target.result);
+
+        nodos = data.nodos;
+
+        aristas = data.aristas.map(a => ({
+            desde: nodos[a.desde],
+            hasta: nodos[a.hasta],
+            peso: a.peso,
+            dirigida: a.dirigida,
+            color: a.color || generarColor()
+        }));
+
+        dibujar();
+
+    };
+
+    lector.readAsText(archivo);
+
+});
