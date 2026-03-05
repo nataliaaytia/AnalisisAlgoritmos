@@ -237,7 +237,7 @@ function obtenerArista(x, y) {
 
         const distancia = Math.sqrt(dx * dx + dy * dy);
 
-        if (distancia < 10) return arista;
+        if (distancia < 20) return arista;
     }
 
     return null;
