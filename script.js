@@ -205,6 +205,26 @@ function obtenerArista(x, y) {
         const x2 = arista.hasta.x;
         const y2 = arista.hasta.y;
 
+        // 🔁 Detectar bucle
+        if (arista.desde === arista.hasta) {
+
+            const loopX = x1;
+            const loopY = y1 - 50;
+            const loopRadius = 30;
+
+            const dx = x - loopX;
+            const dy = y - loopY;
+
+            const distanciaCentro = Math.sqrt(dx * dx + dy * dy);
+
+            if (Math.abs(distanciaCentro - loopRadius) < 10) {
+                return arista;
+            }
+
+            continue;
+        }
+
+        // 🧮 Detección normal de línea
         const A = x - x1;
         const B = y - y1;
         const C = x2 - x1;
@@ -242,7 +262,6 @@ function obtenerArista(x, y) {
 
     return null;
 }
-
 function dibujar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
