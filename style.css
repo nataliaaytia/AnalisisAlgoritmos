@@ -123,7 +123,7 @@ button {
     display: block;
     margin: 25Px auto;
     padding: 18px 45px;
-    font-size: 18px;
+    font-size: 16px;
     border: none;
     border-radius: 35px;
     background: linear-gradient(135deg, #d9825b, #e8a16c);
@@ -143,7 +143,7 @@ button:hover {
 .botonesuwu {
     display: flex;
     justify-content: center;
-    gap: 30px;
+    gap: 25px;
     margin-top: 5px;
     animation: fadeUp 0.6s ease-out;
 }
@@ -356,9 +356,4 @@ footer {
 
 #importarJSON {
     display: none;
-}
-
-.importarexportar {
-    display: flex;
-    gap: 20px;
 }

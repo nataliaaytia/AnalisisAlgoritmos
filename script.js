@@ -686,3 +686,19 @@ document.getElementById("importarJSON").addEventListener("change", function (e) 
     lector.readAsText(archivo);
 
 });
+
+function exportarPNG() {
+
+    abrirModal("Nombre de la imagen", function (nombre) {
+
+        const link = document.createElement("a");
+
+        link.download = nombre + ".png";
+
+        link.href = canvas.toDataURL("image/png");
+
+        link.click();
+
+    });
+
+}
