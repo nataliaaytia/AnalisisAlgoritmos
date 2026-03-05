@@ -205,39 +205,69 @@ function obtenerArista(x, y) {
         const x2 = arista.hasta.x;
         const y2 = arista.hasta.y;
 
-        const A = x - x1;
-        const B = y - y1;
-        const C = x2 - x1;
-        const D = y2 - y1;
+        // ===== DETECTAR BUCLE =====
+        if (arista.desde === arista.hasta) {
 
-        const dot = A * C + B * D;
-        const len = C * C + D * D;
+            const loopX = x1;
+            const loopY = y1 - 50;
+            const loopRadius = 30;
 
-        let param = -1;
+            const dx = x - loopX;
+            const dy = y - loopY;
 
-        if (len !== 0) param = dot / len;
+            const distancia = Math.sqrt(dx * dx + dy * dy);
 
-        let xx, yy;
+            if (Math.abs(distancia - loopRadius) < 15) {
+                return arista;
+            }
 
-        if (param < 0) {
-            xx = x1;
-            yy = y1;
-        }
-        else if (param > 1) {
-            xx = x2;
-            yy = y2;
-        }
-        else {
-            xx = x1 + param * C;
-            yy = y1 + param * D;
+            continue;
         }
 
-        const dx = x - xx;
-        const dy = y - yy;
+        // ===== DETECTAR ARISTA NORMAL =====
 
-        const distancia = Math.sqrt(dx * dx + dy * dy);
+        let offset = 0;
 
-        if (distancia < 20) return arista;
+        const existeInversa = aristas.some(a =>
+            a.desde === arista.hasta &&
+            a.hasta === arista.desde &&
+            a !== arista
+        );
+
+        if (existeInversa) offset = 40;
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const normX = dx / dist;
+        const normY = dy / dist;
+
+        const startX = x1 + normX * radio;
+        const startY = y1 + normY * radio;
+        const endX = x2 - normX * radio;
+        const endY = y2 - normY * radio;
+
+        const controlX = (startX + endX) / 2 - normY * offset;
+        const controlY = (startY + endY) / 2 + normX * offset;
+
+        // aproximamos la curva con puntos
+        for (let t = 0; t <= 1; t += 0.05) {
+
+            const px =
+                (1 - t) * (1 - t) * startX +
+                2 * (1 - t) * t * controlX +
+                t * t * endX;
+
+            const py =
+                (1 - t) * (1 - t) * startY +
+                2 * (1 - t) * t * controlY +
+                t * t * endY;
+
+            const d = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
+
+            if (d < 15) return arista;
+        }
     }
 
     return null;
