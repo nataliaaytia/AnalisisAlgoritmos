@@ -357,3 +357,8 @@ footer {
 #importarJSON {
     display: none;
 }
+
+.importarexportar {
+    display: flex;
+    gap: 20px;
+}
