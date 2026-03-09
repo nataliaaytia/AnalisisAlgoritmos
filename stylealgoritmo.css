@@ -193,6 +193,7 @@ summary::-webkit-details-marker {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    transition: transform 0.8s ease-in-out;
 }
 
 .carta {

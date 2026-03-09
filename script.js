@@ -57,7 +57,7 @@ canvas.addEventListener("click", function (e) {
         abrirModal("Nombre del nodo", function (nombre) {
             if (!nombre) return;
 
-            nodos.push({ x, y, nombre });
+            nodos.push({ x, y, nombre, temprano: null, tardio: null });
             dibujar();
         });
 
@@ -105,7 +105,9 @@ canvas.addEventListener("click", function (e) {
                 hasta: nodo,
                 peso: parseFloat(peso),
                 dirigida: document.getElementById("modal-dirigida-check").checked,
-                color: generarColor()
+                color: generarColor(),
+                holgura: null,
+                critica: false
             });
 
             nodoSeleccionado = null;
@@ -327,18 +329,53 @@ function dibujarNodo(nodo) {
     ctx.fill();
     ctx.stroke();
 
+    // Nombre del nodo (centro)
     ctx.fillStyle = nodo === nodoHover || nodo === nodoActivo ? "white" : "#d9825b";
     ctx.font = "bold 16px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(nodo.nombre, nodo.x, nodo.y);
-}
 
+    // ===== TIEMPOS JOHNSON =====
+
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#333";
+
+    // Tiempo temprano (izquierda)
+    if (nodo.temprano !== null) {
+
+        ctx.textAlign = "right";
+
+        ctx.fillText(
+            nodo.temprano,
+            nodo.x - radio + 15,
+            nodo.y
+        );
+
+    }
+
+    // Tiempo tardío (derecha)
+    if (nodo.tardio !== null) {
+
+        ctx.textAlign = "left";
+
+        ctx.fillText(
+            nodo.tardio,
+            nodo.x + radio - 15,
+            nodo.y
+        );
+
+    }
+}
 function dibujarArista(arista) {
 
     const desde = arista.desde;
     const hasta = arista.hasta;
 
+    const color = arista.critica ? "#e63946" : arista.color;
+    const grosor = arista.critica ? 4 : 2;
+
+    // ===== LOOP (arista hacia sí mismo) =====
     if (desde === hasta) {
 
         const loopRadius = 30;
@@ -346,29 +383,29 @@ function dibujarArista(arista) {
         const loopY = desde.y - 50;
 
         ctx.beginPath();
-        ctx.strokeStyle = arista.color || "#333";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = grosor;
         ctx.arc(loopX, loopY, loopRadius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Peso
-        ctx.fillStyle = arista.color || "#333";
+        // peso
+        ctx.fillStyle = color;
         ctx.font = "bold 14px Arial";
         ctx.textAlign = "center";
         ctx.fillText(arista.peso, loopX, loopY - loopRadius - 10);
 
         if (arista.dirigida) {
 
-            const angle = 0;
             const arrowX = loopX + loopRadius;
             const arrowY = loopY;
 
-            dibujarFlecha(arrowX, arrowY, Math.PI / 2, arista.color);
+            dibujarFlecha(arrowX, arrowY, Math.PI / 2, color);
         }
 
         return;
     }
 
+    // ===== DETECTAR ARISTA INVERSA =====
     let offset = 0;
 
     const existeInversa = aristas.some(a =>
@@ -378,6 +415,8 @@ function dibujarArista(arista) {
     );
 
     if (existeInversa) offset = 40;
+
+    // ===== GEOMETRÍA =====
 
     const dx = hasta.x - desde.x;
     const dy = hasta.y - desde.y;
@@ -394,26 +433,47 @@ function dibujarArista(arista) {
     const controlX = (startX + endX) / 2 - normY * offset;
     const controlY = (startY + endY) / 2 + normX * offset;
 
+    // ===== DIBUJAR CURVA =====
+
     ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.quadraticCurveTo(controlX, controlY, endX, endY);
-    ctx.strokeStyle = arista.color;
-    ctx.lineWidth = 2;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = grosor;
+
     ctx.stroke();
 
-    // Peso
-    ctx.fillStyle = arista.color;
-    ctx.font = "bold 18px Arial";
+    // ===== PESO =====
+
+    ctx.fillStyle = color;
+    ctx.font = "bold 16px Arial";
+    ctx.textAlign = "center";
     ctx.fillText(arista.peso, controlX, controlY);
 
-    // Flecha
+    // ===== FLECHA =====
+
     if (arista.dirigida) {
 
         const angle = Math.atan2(endY - controlY, endX - controlX);
-        dibujarFlecha(endX, endY, angle, arista.color);
+
+        dibujarFlecha(endX, endY, angle, color);
+    }
+
+    // ===== HOLGURA =====
+
+    if (arista.holgura !== null) {
+
+        ctx.font = "12px Arial";
+        ctx.fillStyle = "#444";
+
+        ctx.fillText(
+            "H=" + arista.holgura,
+            controlX,
+            controlY + 16
+        );
     }
 }
-
 function dibujarFlecha(x, y, angle, color) {
 
     const size = 12;
@@ -730,4 +790,95 @@ function exportarPNG() {
 
     });
 
+}
+
+function ordenTopologico() {
+
+    let visitados = new Set();
+    let orden = [];
+
+    function dfs(nodo) {
+
+        if (visitados.has(nodo)) return;
+
+        visitados.add(nodo);
+
+        aristas.forEach(a => {
+            if (a.desde === nodo) {
+                dfs(a.hasta);
+            }
+        });
+
+        orden.unshift(nodo);
+    }
+
+    nodos.forEach(n => dfs(n));
+
+    return orden;
+}
+function resolverJohnson() {
+
+    if (nodos.length === 0) return;
+
+    let orden = ordenTopologico();
+
+    nodos.forEach(n => {
+        n.temprano = 0;
+        n.tardio = Infinity;
+    });
+
+    // PASO HACIA ADELANTE
+    orden.forEach(nodo => {
+
+        aristas.forEach(a => {
+
+            if (a.desde === nodo) {
+
+                let nuevo = nodo.temprano + a.peso;
+
+                if (nuevo > a.hasta.temprano) {
+                    a.hasta.temprano = nuevo;
+                }
+
+            }
+
+        });
+
+    });
+
+    let duracion = Math.max(...nodos.map(n => n.temprano));
+
+    nodos.forEach(n => n.tardio = duracion);
+
+    // PASO HACIA ATRAS
+    [...orden].reverse().forEach(nodo => {
+
+        aristas.forEach(a => {
+
+            if (a.desde === nodo) {
+
+                let nuevo = a.hasta.tardio - a.peso;
+
+                if (nuevo < nodo.tardio) {
+                    nodo.tardio = nuevo;
+                }
+
+            }
+
+        });
+
+    });
+
+    // HOLGURAS
+    aristas.forEach(a => {
+
+        a.holgura =
+            a.hasta.tardio -
+            a.desde.temprano -
+            a.peso;
+
+        a.critica = a.holgura === 0;
+    });
+
+    dibujar();
 }
